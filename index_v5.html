@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>LingoPop! — Belajar Inggris & Italia Bareng Lumi AI</title>
+
+  <!-- Telegram WebApp SDK (berjalan mulus di Telegram Mini App maupun browser biasa) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Nunito & Quicksand untuk tipografi bulat kawaii -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --duo-green: #58CC02;
+      --duo-green-dark: #46A302;
+      --duo-blue: #1CB0F6;
+      --duo-blue-dark: #1899D6;
+      --duo-yellow: #FFC800;
+      --duo-yellow-dark: #E5B400;
+      --duo-coral: #FF4B4B;
+      --duo-coral-dark: #EA2B2B;
+      --duo-purple: #CE82FF;
+      --duo-purple-dark: #A55EEA;
+      --bg-cream: #F7F9FC;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--bg-cream);
+      background-image:
+        radial-gradient(#E2E8F0 1.2px, transparent 1.2px),
+        radial-gradient(#DBEAFE 1.2px, var(--bg-cream) 1.2px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+      color: #1E293B;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Quicksand', 'Nunito', sans-serif;
+    }
+
+    /* Tombol 3D Tactile ala Duolingo */
+    .btn-tactile {
+      transition: transform 0.08s ease, filter 0.12s ease;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    .btn-tactile:active:not(:disabled) {
+      transform: translateY(3px);
+      border-bottom-width: 1px !important;
+    }
+
+    .btn-green {
+      background-color: #58CC02;
+      border-bottom: 4px solid #46A302;
+      color: #FFFFFF;
+    }
+    .btn-blue {
+      background-color: #1CB0F6;
+      border-bottom: 4px solid #1899D6;
+      color: #FFFFFF;
+    }
+    .btn-yellow {
+      background-color: #FFC800;
+      border-bottom: 4px solid #D9A600;
+      color: #422006;
+    }
+    .btn-coral {
+      background-color: #FF4B4B;
+      border-bottom: 4px solid #D63031;
+      color: #FFFFFF;
+    }
+    .btn-purple {
+      background-color: #A855F7;
+      border-bottom: 4px solid #7E22CE;
+      color: #FFFFFF;
+    }
+    .btn-card {
+      background-color: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      border-bottom: 4px solid #CBD5E1;
+      color: #334155;
+    }
+
+    .kawaii-card {
+      background: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      border-bottom: 5px solid #CBD5E1;
+      border-radius: 20px;
+    }
+
+    /* Animasi lembut maskot & node aktif */
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .animate-bob {
+      animation: floatBob 2.6s ease-in-out infinite;
+    }
+
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(88, 204, 2, 0.45); }
+      70% { box-shadow: 0 0 0 12px rgba(88, 204, 2, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(88, 204, 2, 0); }
+    }
+    .node-pulse {
+      animation: pulseRing 2.2s infinite;
+    }
+
+    @keyframes shakeX {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .animate-shake {
+      animation: shakeX 0.28s ease-in-out;
+    }
+
+    @keyframes confettiDrop {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(380px) rotate(720deg); opacity: 0; }
+    }
+    .confetti-bit {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      animation: confettiDrop 1.8s ease-out forwards;
+    }
+
+    /* Kata interaktif di cerita & bacaan */
+    .tap-word {
+      display: inline-block;
+      padding: 2px 6px;
+      margin: 2px 1px;
+      border-radius: 10px;
+      background-color: #EFF6FF;
+      border-bottom: 2px dashed #1CB0F6;
+      color: #0369A1;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tap-word:hover, .tap-word:active {
+      background-color: #FEF08A;
+      border-bottom-color: #EAB308;
+      color: #854D0E;
+      transform: translateY(-1px);
+    }
+
+    /* Custom scrollbar ringan */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col pb-24 sm:pb-8">
+
+  <!-- ==================== TOP GAMIFICATION HUD ==================== -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b-2 border-slate-200 shadow-xs">
+    <div class="max-w-3xl mx-auto px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2">
+
+      <!-- Brand & Bilingual Switcher -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-emerald-50 border-2 border-emerald-200 px-2.5 py-1 rounded-2xl">
+          <div id="hudAvatarMini" class="w-7 h-7 rounded-xl bg-white flex items-center justify-center overflow-hidden shrink-0"></div>
+          <span class="font-display font-extrabold text-sm sm:text-base text-emerald-700 tracking-tight">LingoPop!</span>
+        </div>
+
+        <!-- Switcher Inggris / Italia -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-2xl border-2 border-slate-200" role="group" aria-label="Pilih Bahasa">
+          <button type="button" id="btnLangEN" onclick="setLanguage('en')" class="flex items-center gap-1 px-2.5 py-1 rounded-xl font-extrabold text-xs transition-all bg-white text-sky-600 shadow-xs">
+            <span>🇬🇧</span>
+            <span class="hidden xs:inline sm:inline">Inggris</span>
+          </button>
+          <button type="button" id="btnLangIT" onclick="setLanguage('it')" class="flex items-center gap-1 px-2.5 py-1 rounded-xl font-extrabold text-xs transition-all text-slate-500 hover:text-slate-700">
+            <span>🇮🇹</span>
+            <span class="hidden xs:inline sm:inline">Italia</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Counters: Streak, Gems, Energy -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <div class="flex items-center gap-1 bg-orange-50 border-2 border-orange-200 px-2.5 py-1 rounded-2xl" title="Daily Streak">
+          <span class="text-sm">🔥</span>
+          <span id="hudStreak" class="font-extrabold text-xs sm:text-sm text-orange-600">5</span>
+        </div>
+
+        <button type="button" onclick="switchTab('toko')" class="flex items-center gap-1 bg-sky-50 hover:bg-sky-100 border-2 border-sky-200 px-2.5 py-1 rounded-2xl transition-colors" title="Permata (Gems) - Buka Toko">
+          <span class="text-sm">💎</span>
+          <span id="hudGems" class="font-extrabold text-xs sm:text-sm text-sky-600">120</span>
+        </button>
+
+        <button type="button" onclick="switchTab('toko')" class="flex items-center gap-1 bg-rose-50 hover:bg-rose-100 border-2 border-rose-200 px-2.5 py-1 rounded-2xl transition-colors" title="Energi / Hati">
+          <span class="text-sm">⚡</span>
+          <span id="hudEnergy" class="font-extrabold text-xs sm:text-sm text-rose-600">10/10</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Desktop Top Tabs (tampil di layar >= sm) -->
+    <nav class="hidden sm:grid max-w-3xl mx-auto px-5 pb-2.5 grid-cols-5 gap-2">
+      <button type="button" id="deskTab-belajar" onclick="switchTab('belajar')" class="btn-tactile btn-green py-2 px-3 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-1.5">
+        <span>🗺️</span><span>Belajar (17 Bab)</span>
+      </button>
+      <button type="button" id="deskTab-cerita" onclick="switchTab('cerita')" class="btn-tactile btn-card py-2 px-3 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-1.5">
+        <span>📚</span><span>Cerita</span>
+      </button>
+      <button type="button" id="deskTab-baca" onclick="switchTab('baca')" class="btn-tactile btn-card py-2 px-3 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-1.5">
+        <span>📖</span><span>Baca & Paham</span>
+      </button>
+      <button type="button" id="deskTab-lumi" onclick="switchTab('lumi')" class="btn-tactile btn-card py-2 px-3 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-1.5">
+        <span>🦉</span><span>Lumi AI</span>
+      </button>
+      <button type="button" id="deskTab-toko" onclick="switchTab('toko')" class="btn-tactile btn-card py-2 px-3 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-1.5">
+        <span>🛍️</span><span>Toko</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ==================== TOAST NOTIFICATION ==================== -->
+  <div id="toastBox" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden pointer-events-none w-max max-w-[92vw]">
+    <div class="bg-slate-900/95 text-white font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-2xl shadow-xl border-2 border-yellow-400 flex items-center gap-2">
+      <span>✨</span>
+      <span id="toastMsg">Siap belajar!</span>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3 sm:px-5 pt-4 space-y-5">
+
+    <!-- ==================== TAB 1: BELAJAR (WINDING 17-CHAPTER PATH) ==================== -->
+    <section id="view-belajar" class="space-y-5">
+      <!-- Banner Mode Bebas: Semua 17 Bab Terbuka -->
+      <div class="kawaii-card p-3.5 sm:p-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 text-white border-emerald-600 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl bg-white/20 p-2 rounded-2xl">🔓</span>
+          <div>
+            <p class="font-display font-extrabold text-sm sm:text-base leading-tight">Semua 17 Bab Terbuka (Mode Bebas)</p>
+            <p id="trackSubtitle" class="text-xs text-white/90 font-semibold">Jalur Bahasa Inggris 🇬🇧 • Pilih bab mana saja sesukamu!</p>
+          </div>
+        </div>
+        <div class="bg-white/20 backdrop-blur-xs px-3 py-1 rounded-xl text-xs font-extrabold">
+          ⭐ <span id="hudXP">0</span> XP
+        </div>
+      </div>
+
+      <!-- Lumi AI Floating Encouragement Bubble -->
+      <div class="kawaii-card p-4 bg-white flex items-center gap-3.5 border-sky-200">
+        <div id="lumiPathMascot" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-50 border-2 border-amber-200 flex items-center justify-center shrink-0 animate-bob"></div>
+        <div class="flex-1 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider bg-purple-100 text-purple-700 px-2.5 py-0.5 rounded-full">
+              🦉 Tips Lumi AI
+            </span>
+            <button type="button" onclick="rotateLumiTip()" class="text-xs font-extrabold text-sky-600 hover:underline">
+              Ganti Tips 🔄
+            </button>
+          </div>
+          <p id="lumiTipText" class="text-xs sm:text-sm font-bold text-slate-700 leading-snug">
+            "Halo! Semua 17 bab sudah Lumi buka kuncinya! Kamu bisa langsung loncat ke Bab Kafe, Perjalanan, atau mulai dari Bab 1!"
+          </p>
+        </div>
+      </div>
+
+      <!-- Winding Duolingo-style 17 Chapters Path -->
+      <div id="windingPathContainer" class="relative py-4 flex flex-col items-center space-y-6"></div>
+    </section>
+
+    <!-- ==================== TAB 2: CERITA (BUKU CERITA INTERAKTIF) ==================== -->
+    <section id="view-cerita" class="hidden space-y-5">
+      <div class="kawaii-card p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl bg-white p-2.5 rounded-2xl border-2 border-amber-200">📚</span>
+          <div>
+            <h2 class="font-display font-extrabold text-lg text-slate-800">Buku Cerita Interaktif</h2>
+            <p class="text-xs text-slate-600 font-semibold">Ketuk kata berwarna biru untuk melihat artinya seketika!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Story Selector Pills -->
+      <div id="storySelectorPills" class="flex gap-2 overflow-x-auto pb-1"></div>
+
+      <!-- Active Story Card -->
+      <div id="storyReaderCard" class="kawaii-card p-5 bg-white space-y-4"></div>
+    </section>
+
+    <!-- ==================== TAB 3: BACA & PAHAM ==================== -->
+    <section id="view-baca" class="hidden space-y-5">
+      <div class="kawaii-card p-4 bg-gradient-to-r from-sky-50 to-indigo-50 border-sky-200 flex items-center gap-3">
+        <span class="text-3xl bg-white p-2.5 rounded-2xl border-2 border-sky-200">📖</span>
+        <div>
+          <h2 class="font-display font-extrabold text-lg text-slate-800">Baca & Paham</h2>
+          <p class="text-xs text-slate-600 font-semibold">Dialog & artikel pendek dengan catatan tata bahasa santai + kuis kilat.</p>
+        </div>
+      </div>
+
+      <div id="readingLessonsContainer" class="space-y-5"></div>
+    </section>
+
+    <!-- ==================== TAB 4: LUMI AI (TUTOR PERCAKAPAN) ==================== -->
+    <section id="view-lumi" class="hidden space-y-4">
+      <div class="kawaii-card p-4 bg-white flex items-center justify-between gap-3 border-purple-200">
+        <div class="flex items-center gap-3">
+          <div id="lumiChatAvatar" class="w-12 h-12 rounded-2xl bg-purple-50 border-2 border-purple-200 flex items-center justify-center shrink-0"></div>
+          <div>
+            <h2 class="font-display font-extrabold text-base sm:text-lg text-slate-800">Lumi AI — Tutor & Teman Ngobrol</h2>
+            <p id="lumiChatStatus" class="text-xs text-emerald-600 font-extrabold">● Online • Koreksi Grammar & Terjemahan Instan</p>
+          </div>
+        </div>
+        <button type="button" onclick="resetLumiChat()" class="btn-tactile btn-card px-3 py-1.5 rounded-xl text-xs font-extrabold">
+          🔄 Reset
+        </button>
+      </div>
+
+      <!-- Chat Feed -->
+      <div id="lumiChatFeed" class="kawaii-card p-4 bg-slate-50/70 h-[340px] sm:h-[380px] overflow-y-auto space-y-3.5"></div>
+
+      <!-- Quick-Reply Prompt Chips -->
+      <div class="space-y-1.5">
+        <p class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider px-1">💡 Pilih Balasan Cepat atau Ketik Sendiri:</p>
+        <div id="lumiPromptChips" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- Input Form -->
+      <form onsubmit="sendLumiMessage(event)" class="kawaii-card p-2 bg-white flex items-center gap-2">
+        <input
+          id="lumiInput"
+          type="text"
+          autocomplete="off"
+          placeholder="Tulis kalimat dalam Inggris, Italia, atau tanya arti kata..."
+          class="flex-1 bg-slate-100 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400"
+        />
+        <button type="submit" class="btn-tactile btn-green px-4 py-2.5 rounded-xl font-extrabold text-sm shrink-0">
+          Kirim 🚀
+        </button>
+      </form>
+    </section>
+
+    <!-- ==================== TAB 5: TOKO (SKIN AVATAR & ENERGI) ==================== -->
+    <section id="view-toko" class="hidden space-y-5">
+      <!-- Showcase Lumi Skin -->
+      <div class="kawaii-card p-5 bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 border-purple-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div id="shopShowcaseAvatar" class="w-24 h-24 rounded-3xl bg-white border-4 border-purple-200 flex items-center justify-center shadow-xs animate-bob shrink-0"></div>
+          <div>
+            <span class="text-[11px] font-extrabold uppercase tracking-wider bg-purple-200 text-purple-800 px-2.5 py-0.5 rounded-full">
+              Kostum Aktif Lumi
+            </span>
+            <h2 id="activeSkinTitle" class="font-display font-extrabold text-xl text-slate-800 mt-1">Lumi Bintang Klasik</h2>
+            <p id="activeSkinDesc" class="text-xs text-slate-600 font-semibold">Maskot burung hantu bintang kesayanganmu!</p>
+          </div>
+        </div>
+        <div class="bg-white border-2 border-sky-200 px-4 py-2.5 rounded-2xl text-center shrink-0">
+          <span class="block text-[10px] font-extrabold text-slate-400 uppercase">Permata Kamu</span>
+          <span id="shopGemsCount" class="font-display font-extrabold text-2xl text-sky-600">120 💎</span>
+        </div>
+      </div>
+
+      <!-- Energy Refill Card -->
+      <div class="kawaii-card p-4 bg-white flex flex-wrap items-center justify-between gap-3 border-rose-200">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl bg-rose-50 p-2.5 rounded-2xl border border-rose-200">⚡</span>
+          <div>
+            <h3 class="font-display font-extrabold text-base text-slate-800">Isi Ulang Energi Penuh (10/10 ⚡)</h3>
+            <p class="text-xs text-slate-500 font-semibold">Pulihkan semua energi belajar seketika!</p>
+          </div>
+        </div>
+        <button type="button" onclick="refillEnergy()" class="btn-tactile btn-yellow px-4 py-2.5 rounded-2xl font-extrabold text-xs sm:text-sm">
+          Isi Penuh (30 💎)
+        </button>
+      </div>
+
+      <!-- Avatar Skins Grid -->
+      <div class="space-y-3">
+        <h3 class="font-display font-extrabold text-base text-slate-800 px-1">🎨 Koleksi Skin & Bingkai Kawaii Lumi</h3>
+        <div id="skinsShopGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MOBILE BOTTOM NAVIGATION BAR ==================== -->
+  <nav class="sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white border-t-2 border-slate-200 px-2 py-1.5 grid grid-cols-5 gap-1 shadow-lg">
+    <button type="button" id="mobTab-belajar" onclick="switchTab('belajar')" class="flex flex-col items-center justify-center py-1 rounded-xl bg-emerald-50 text-emerald-600 font-extrabold text-[10px]">
+      <span class="text-lg">🗺️</span><span>Belajar</span>
+    </button>
+    <button type="button" id="mobTab-cerita" onclick="switchTab('cerita')" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-500 font-extrabold text-[10px]">
+      <span class="text-lg">📚</span><span>Cerita</span>
+    </button>
+    <button type="button" id="mobTab-baca" onclick="switchTab('baca')" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-500 font-extrabold text-[10px]">
+      <span class="text-lg">📖</span><span>Baca</span>
+    </button>
+    <button type="button" id="mobTab-lumi" onclick="switchTab('lumi')" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-500 font-extrabold text-[10px]">
+      <span class="text-lg">🦉</span><span>Lumi AI</span>
+    </button>
+    <button type="button" id="mobTab-toko" onclick="switchTab('toko')" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-500 font-extrabold text-[10px]">
+      <span class="text-lg">🛍️</span><span>Toko</span>
+    </button>
+  </nav>
+
+  <!-- ==================== INTERACTIVE MULTI-QUESTION LESSON MODAL ==================== -->
+  <div id="lessonModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4">
+    <div class="bg-[#F7F9FC] w-full max-w-xl rounded-3xl border-4 border-emerald-400 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+
+      <!-- Modal Top Progress Bar -->
+      <div class="bg-white px-4 py-3 border-b-2 border-slate-200 flex items-center gap-3 shrink-0">
+        <button type="button" onclick="closeLessonModal()" aria-label="Tutup Pelajaran" class="btn-tactile w-10 h-10 rounded-2xl bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-600 font-extrabold text-lg flex items-center justify-center shrink-0">
+          ✕
+        </button>
+        <div class="flex-1 bg-slate-200 h-4 rounded-full overflow-hidden p-0.5">
+          <div id="lessonProgressFill" class="bg-[#58CC02] h-full rounded-full transition-all duration-300" style="width: 25%"></div>
+        </div>
+        <span id="lessonStepCounter" class="font-extrabold text-xs text-slate-600 shrink-0">1/4</span>
+      </div>
+
+      <!-- Modal Dynamic Question Stage -->
+      <div id="lessonModalStage" class="p-4 sm:p-6 overflow-y-auto flex-1 relative"></div>
+
+      <!-- Instant Kawaii Feedback Footer Banner -->
+      <div id="lessonFeedbackBanner" class="hidden px-4 sm:px-6 py-4 border-t-2 transition-all shrink-0"></div>
+    </div>
+  </div>
+
+  <!-- ==================== WORD TRANSLATION POPOVER MODAL ==================== -->
+  <div id="wordPopoverModal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4" onclick="if(event.target===this) closeWordPopover()">
+    <div class="kawaii-card p-5 max-w-sm w-full bg-white space-y-3 border-sky-300">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-extrabold uppercase tracking-wider bg-sky-100 text-sky-700 px-2.5 py-0.5 rounded-full">
+          🔍 Kamus Kilat Lumi
+        </span>
+        <button type="button" onclick="closeWordPopover()" class="w-8 h-8 rounded-xl bg-slate-100 font-extrabold text-slate-600">✕</button>
+      </div>
+      <div class="flex items-center justify-between gap-2 bg-amber-50 p-3 rounded-2xl border border-amber-200">
+        <div>
+          <h4 id="popWordOriginal" class="font-display font-extrabold text-xl text-slate-800">Hello</h4>
+          <p id="popWordMeaning" class="text-sm font-extrabold text-emerald-600">Halo</p>
+        </div>
+        <button type="button" id="popWordAudioBtn" class="btn-tactile btn-blue px-3.5 py-2 rounded-xl font-extrabold text-xs">
+          🔊 Dengar
+        </button>
+      </div>
+      <p id="popWordNote" class="text-xs text-slate-600 font-semibold leading-relaxed"></p>
+      <button type="button" onclick="closeWordPopover()" class="w-full btn-tactile btn-green py-2.5 rounded-2xl font-extrabold text-sm">
+        Mengerti! 👍
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. INISIALISASI TELEGRAM MINI APP SDK
+    // -------------------------------------------------------------------------
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg) {
+      try {
+        tg.ready();
+        tg.expand();
+      } catch (e) {}
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. STATE APLIKASI & LOCALSTORAGE PERSISTENCE (SEMUA 17 BAB TERBUKA)
+    // -------------------------------------------------------------------------
+    const STORAGE_KEY = 'lingopop_state_v1';
+    const ALL_17_IDS = Array.from({ length: 17 }, (_, i) => i + 1);
+
+    const defaultState = {
+      lang: 'en', // 'en' | 'it'
+      activeTab: 'belajar',
+      streak: 5,
+      gems: 120,
+      energy: 10,
+      maxEnergy: 10,
+      xp: 0,
+      unlockedChapters: ALL_17_IDS, // Selalu terbuka semua 17 bab
+      chapterStars: {}, // { 'en-1': 3, 'it-2': 2, ... }
+      equippedSkin: 'classic',
+      unlockedSkins: ['classic'],
+      activeStoryIdx: 0,
+      readQuizSolved: {}
+    };
+
+    function loadAppState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          return {
+            ...defaultState,
+            ...parsed,
+            // Pastikan semua 17 bab selalu terbuka meskipun ada data lama
+            unlockedChapters: ALL_17_IDS
+          };
+        }
+      } catch (e) {}
+      return { ...defaultState };
+    }
+
+    let appState = loadAppState();
+
+    function saveAppState() {
+      try {
+        appState.unlockedChapters = ALL_17_IDS;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {}
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. TEXT-TO-SPEECH (PRONUNCIATION) & TOAST HELPER
+    // -------------------------------------------------------------------------
+    function speakPhrase(text, rate = 0.95) {
+      if (!('speechSynthesis' in window)) {
+        showToast('Audio pelafalan tidak didukung di browser ini.');
+        return;
+      }
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = appState.lang === 'it' ? 'it-IT' : 'en-US';
+        utter.rate = rate;
+        utter.pitch = 1.06;
+        window.speechSynthesis.speak(utter);
+      } catch (e) {}
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      const box = document.getElementById('toastBox');
+      const msg = document.getElementById('toastMsg');
+      msg.textContent = message;
+      box.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => box.classList.add('hidden'), 2600);
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. MASKOT SVG KAWAII LUMI AI & SKINS TOKO
+    // -------------------------------------------------------------------------
+    const LUMI_SKINS = [
+      { id: 'classic', name: 'Lumi Bintang Klasik', price: 0, desc: 'Maskot burung hantu bintang kesayanganmu!', body: '#A855F7', belly: '#F3E8FF', badge: '⭐' },
+      { id: 'matcha', name: 'Lumi Matcha Kawaii', price: 60, desc: 'Nuansa hijau pastel segar dengan pita daun!', body: '#58CC02', belly: '#ECFCCB', badge: '🍃' },
+      { id: 'skychef', name: 'Koki Pizza Italia', price: 90, desc: 'Topi koki putih siap menemani belajar di Roma!', body: '#1CB0F6', belly: '#E0F2FE', badge: '🍕' },
+      { id: 'royal', name: 'Sultan Mahkota Emas', price: 150, desc: 'Mahkota emas berkilau untuk juara 17 Bab!', body: '#F59E0B', belly: '#FEF3C7', badge: '👑' },
+      { id: 'sakura', name: 'Lumi Sakura Pink', price: 110, desc: 'Warna merah muda lembut super gemoy!', body: '#EC4899', belly: '#FCE7F3', badge: '🌸' },
+      { id: 'astro', name: 'Astronot Galaksi', price: 180, desc: 'Helm antariksa buat menjelajah kosakata baru!', body: '#4F46E5', belly: '#E0E7FF', badge: '🚀' }
+    ];
+
+    function renderLumiSVG(skinId) {
+      const skin = LUMI_SKINS.find(s => s.id === skinId) || LUMI_SKINS[0];
+      let accessory = '';
+      if (skin.id === 'skychef') {
+        accessory = `<ellipse cx="50" cy="18" rx="20" ry="9" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>`;
+      } else if (skin.id === 'royal') {
+        accessory = `<polygon points="32,24 36,10 44,18 50,8 56,18 64,10 68,24" fill="#FFC800" stroke="#B45309" stroke-width="2"/>`;
+      } else if (skin.id === 'astro') {
+        accessory = `<circle cx="50" cy="52" r="38" fill="rgba(186,230,253,0.22)" stroke="#38BDF8" stroke-width="3"/>`;
+      } else {
+        accessory = `<polygon points="50,6 53,14 61,14 55,19 57,27 50,22 43,27 45,19 39,14 47,14" fill="#FFC800"/>`;
+      }
+
+      return `
+        <svg viewBox="0 0 100 100" class="w-full h-full">
+          <circle cx="50" cy="55" r="32" fill="${skin.body}"/>
+          <ellipse cx="50" cy="63" rx="21" ry="19" fill="${skin.belly}"/>
+          <circle cx="38" cy="48" r="9.5" fill="#FFFFFF"/>
+          <circle cx="62" cy="48" r="9.5" fill="#FFFFFF"/>
+          <circle cx="39" cy="48" r="4.5" fill="#1E293B"/>
+          <circle cx="61" cy="48" r="4.5" fill="#1E293B"/>
+          <circle cx="40.5" cy="46.5" r="1.6" fill="#FFFFFF"/>
+          <circle cx="62.5" cy="46.5" r="1.6" fill="#FFFFFF"/>
+          <polygon points="46,54 54,54 50,61" fill="#FF9600"/>
+          <circle cx="30" cy="56" r="4.5" fill="#FDA4AF" opacity="0.8"/>
+          <circle cx="70" cy="56" r="4.5" fill="#FDA4AF" opacity="0.8"/>
+          ${accessory}
+        </svg>
+      `;
+    }
+
+    function syncAllAvatarsAndHUD() {
+      const svg = renderLumiSVG(appState.equippedSkin);
+      ['hudAvatarMini', 'lumiPathMascot', 'lumiChatAvatar', 'shopShowcaseAvatar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = svg;
+      });
+      document.getElementById('hudStreak').textContent = appState.streak;
+      document.getElementById('hudGems').textContent = appState.gems;
+      document.getElementById('hudEnergy').textContent = `${appState.energy}/${appState.maxEnergy}`;
+      document.getElementById('hudXP').textContent = appState.xp;
+      const shopGems = document.getElementById('shopGemsCount');
+      if (shopGems) shopGems.textContent = `${appState.gems} 💎`;
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. KURIKULUM LENGKAP 17 BAB (ENGLISH & ITALIANO) — SEMUA TERBUKA
+    // -------------------------------------------------------------------------
+    const CHAPTER_TOPICS = [
+      { id: 1, icon: '👋', color: 'btn-green', title: 'Bab 1: Sapaan & Perkenalan',
+        en: {
+          vocab: [
+            { target: 'Hello, nice to meet you!', id: 'Halo, senang bertemu denganmu!', note: 'Sapaan ramah saat berkenalan.' },
+            { target: 'My name is Budi.', id: 'Nama saya Budi.', note: 'Gunakan "My name is..." untuk menyebut nama.' }
+          ],
+          builder: { id: 'Apa kabarmu hari ini?', words: ['How', 'are', 'you', 'today?'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Ciao, piacere di conoscerti!', id: 'Halo, senang berkenalan denganmu!', note: 'Sapaan santai khas Italia.' },
+            { target: 'Mi chiamo Budi.', id: 'Nama saya Budi.', note: '"Ch" di Italia dibaca keras seperti huruf K ("kiamo").' }
+          ],
+          builder: { id: 'Apa kabarmu hari ini?', words: ['Come', 'stai', 'oggi?'] }
+        }
+      },
+      { id: 2, icon: '☕', color: 'btn-yellow', title: 'Bab 2: Kafe & Makanan',
+        en: {
+          vocab: [
+            { target: 'I would like an iced coffee, please.', id: 'Saya mau satu es kopi, tolong.', note: '"I would like..." jauh lebih sopan daripada "I want".' },
+            { target: 'The pizza is very delicious!', id: 'Pizzanya sangat lezat!', note: 'Delicious = lezat / enak sekali.' }
+          ],
+          builder: { id: 'Boleh saya minta air mineral?', words: ['Can', 'I', 'have', 'water?'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Vorrei un caffè e un cornetto.', id: 'Saya mau satu kopi dan satu croissant.', note: 'Sarapan klasik di bar/kafe Italia!' },
+            { target: 'La pizza è molto buona!', id: 'Pizzanya sangat enak!', note: '"La pizza" feminin, jadi kata sifatnya "buona".' }
+          ],
+          builder: { id: 'Saya mau satu pizza hangat.', words: ['Vorrei', 'una', 'pizza', 'calda.'] }
+        }
+      },
+      { id: 3, icon: '⏰', color: 'btn-blue', title: 'Bab 3: Angka & Waktu',
+        en: {
+          vocab: [
+            { target: 'What time is it right now?', id: 'Jam berapa sekarang?', note: 'Pertanyaan standar menanyakan waktu.' },
+            { target: 'Two plus three equals five.', id: 'Dua tambah tiga sama dengan lima.', note: 'Plus (+), minus (−), equals (=).' }
+          ],
+          builder: { id: 'Sekarang jam tujuh pagi.', words: ['It', 'is', 'seven', 'o’clock.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Che ore sono adesso?', id: 'Jam berapa sekarang?', note: 'Secara harfiah berarti "Jam-jam apa sekarang?".' },
+            { target: 'Due più tre fa cinque.', id: 'Dua tambah tiga sama dengan lima.', note: 'più = tambah, fa = sama dengan.' }
+          ],
+          builder: { id: 'Hari ini hari Senin.', words: ['Oggi', 'è', 'lunedì.'] }
+        }
+      },
+      { id: 4, icon: '👨‍👩‍👧‍👦', color: 'btn-purple', title: 'Bab 4: Keluarga & Teman',
+        en: {
+          vocab: [
+            { target: 'My mother and father are kind.', id: 'Ibu dan ayahku sangat baik.', note: 'Mother = ibu, Father = ayah.' },
+            { target: 'She is my best friend.', id: 'Dia adalah sahabat terbaikku.', note: 'Best friend = sahabat.' }
+          ],
+          builder: { id: 'Saya punya satu saudara perempuan.', words: ['I', 'have', 'one', 'sister.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Mia madre e mio padre sono gentili.', id: 'Ibuku dan ayahku sangat ramah.', note: 'Keluarga inti tunggal tidak memakai artikel "la/il".' },
+            { target: 'Lui è il mio migliore amico.', id: 'Dia adalah sahabat terbaikku.', note: 'Amico (♂️) / Amica (♀️).' }
+          ],
+          builder: { id: 'Saya cinta keluargaku.', words: ['Amo', 'la', 'mia', 'famiglia.'] }
+        }
+      },
+      { id: 5, icon: '🧭', color: 'btn-coral', title: 'Bab 5: Arah & Transportasi',
+        en: {
+          vocab: [
+            { target: 'Excuse me, where is the train station?', id: 'Permisi, di mana stasiun kereta?', note: 'Gunakan "Excuse me" sebelum bertanya pada orang asing.' },
+            { target: 'Go straight ahead, then turn left.', id: 'Jalan lurus terus, lalu belok kiri.', note: 'Straight ahead = lurus ke depan.' }
+          ],
+          builder: { id: 'Belok kanan di sebelah bank.', words: ['Turn', 'right', 'next', 'to', 'the', 'bank.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Mi scusi, dov’è la stazione?', id: 'Permisi, di manakah stasiun?', note: 'Sapaan sopan saat bertanya arah di jalan.' },
+            { target: 'Vada sempre dritto, poi a sinistra.', id: 'Jalan lurus terus, lalu ke kiri.', note: 'Destra = kanan, Sinistra = kiri.' }
+          ],
+          builder: { id: 'Stasiunnya ada di sebelah kanan.', words: ['La', 'stazione', 'è', 'a', 'destra.'] }
+        }
+      },
+      { id: 6, icon: '🛍️', color: 'btn-green', title: 'Bab 6: Belanja & Harga',
+        en: {
+          vocab: [
+            { target: 'How much does this jacket cost?', id: 'Berapa harga jaket ini?', note: 'Menanyakan harga barang tunggal.' },
+            { target: 'Can I pay by credit card?', id: 'Bisakah saya bayar pakai kartu kredit?', note: 'Cash = tunai, Card = kartu.' }
+          ],
+          builder: { id: 'Ini terlalu mahal untukku.', words: ['This', 'is', 'too', 'expensive.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Quanto costa questa giacca?', id: 'Berapa harga jaket ini?', note: '"Quanto costa?" adalah frasa wajib belanja!' },
+            { target: 'Posso pagare con la carta?', id: 'Bisakah saya bayar dengan kartu?', note: 'Posso = bolehkah / bisakah saya.' }
+          ],
+          builder: { id: 'Berapa harga buku ini?', words: ['Quanto', 'costa', 'questo', 'libro?'] }
+        }
+      },
+      { id: 7, icon: '🎮', color: 'btn-yellow', title: 'Bab 7: Hobi & Hiburan',
+        en: {
+          vocab: [
+            { target: 'I love listening to music and reading.', id: 'Saya suka mendengarkan musik dan membaca.', note: 'Setelah "love/like" gunakan Verb-ing.' },
+            { target: 'Let’s watch a movie tonight!', id: 'Ayo nonton film malam ini!', note: 'Let’s = Ayo kita...' }
+          ],
+          builder: { id: 'Saya suka bermain gitar.', words: ['I', 'like', 'playing', 'the', 'guitar.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Mi piace ascoltare la musica.', id: 'Saya suka mendengarkan musik.', note: '"Mi piace..." berarti "Saya suka...".' },
+            { target: 'Guardiamo un film stasera!', id: 'Ayo kita nonton film malam ini!', note: 'Stasera = malam ini.' }
+          ],
+          builder: { id: 'Saya suka membaca buku.', words: ['Mi', 'piace', 'leggere', 'libri.'] }
+        }
+      },
+      { id: 8, icon: '🌦️', color: 'btn-blue', title: 'Bab 8: Cuaca & Musim',
+        en: {
+          vocab: [
+            { target: 'It is sunny and warm today.', id: 'Hari ini cerah dan hangat.', note: 'Sunny = cerah, Rainy = hujan, Windy = berangin.' },
+            { target: 'Don’t forget your umbrella!', id: 'Jangan lupa payungmu!', note: 'Umbrella = payung.' }
+          ],
+          builder: { id: 'Di luar sedang turun salju.', words: ['It', 'is', 'snowing', 'outside.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Oggi c’è il sole e fa caldo.', id: 'Hari ini cerah dan udaranya hangat.', note: 'Cuaca di Italia memakai "fa caldo" (panas) / "fa freddo" (dingin).' },
+            { target: 'Piove molto in autunno.', id: 'Banyak hujan di musim gugur.', note: 'Autunno = musim gugur.' }
+          ],
+          builder: { id: 'Hari ini cuacanya sangat indah.', words: ['Oggi', 'fa', 'bel', 'tempo.'] }
+        }
+      },
+      { id: 9, icon: '💼', color: 'btn-purple', title: 'Bab 9: Pekerjaan & Kantor',
+        en: {
+          vocab: [
+            { target: 'I have a team meeting at ten.', id: 'Saya ada rapat tim jam sepuluh.', note: 'Team meeting = rapat tim.' },
+            { target: 'I will send the email shortly.', id: 'Saya akan segera mengirim emailnya.', note: 'Shortly = sebentar lagi / segera.' }
+          ],
+          builder: { id: 'Dia bekerja sebagai desainer.', words: ['She', 'works', 'as', 'a', 'designer.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Ho una riunione alle dieci.', id: 'Saya ada rapat jam sepuluh.', note: 'La riunione = rapat.' },
+            { target: 'Invio subito il documento.', id: 'Saya segera mengirimkan dokumennya.', note: 'Subito = segera / langsung.' }
+          ],
+          builder: { id: 'Saya bekerja di kantor.', words: ['Lavoro', 'in', 'un', 'ufficio.'] }
+        }
+      },
+      { id: 10, icon: '🩺', color: 'btn-coral', title: 'Bab 10: Kesehatan & Tubuh',
+        en: {
+          vocab: [
+            { target: 'I have a headache and feel tired.', id: 'Saya sakit kepala dan merasa lelah.', note: 'Headache = sakit kepala, Stomachache = sakit perut.' },
+            { target: 'Drink plenty of water and rest.', id: 'Minum banyak air dan beristirahatlah.', note: 'Rest = istirahat.' }
+          ],
+          builder: { id: 'Saya perlu pergi ke dokter.', words: ['I', 'need', 'to', 'see', 'a', 'doctor.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Ho mal di testa e sono stanco.', id: 'Saya sakit kepala dan merasa lelah.', note: 'Ho mal di... = Saya sakit...' },
+            { target: 'Bevi molta acqua e riposa.', id: 'Minum banyak air dan beristirahatlah.', note: 'Acqua = air.' }
+          ],
+          builder: { id: 'Di mana apotek terdekat?', words: ['Dov’è', 'la', 'farmacia?'] }
+        }
+      },
+      { id: 11, icon: '✈️', color: 'btn-green', title: 'Bab 11: Perjalanan & Hotel',
+        en: {
+          vocab: [
+            { target: 'I have a reservation under my name.', id: 'Saya punya reservasi atas nama saya.', note: 'Reservation = pemesanan kamar/tiket.' },
+            { target: 'What time is breakfast served?', id: 'Jam berapa sarapan disajikan?', note: 'Breakfast = sarapan.' }
+          ],
+          builder: { id: 'Ini paspor dan tiket saya.', words: ['Here', 'is', 'my', 'passport.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Ho una prenotazione per due notti.', id: 'Saya punya reservasi untuk dua malam.', note: 'Prenotazione = reservasi.' },
+            { target: 'A che ora è la colazione?', id: 'Jam berapa sarapannya?', note: 'Colazione = sarapan.' }
+          ],
+          builder: { id: 'Kamarnya punya pemandangan laut.', words: ['La', 'camera', 'ha', 'vista', 'mare.'] }
+        }
+      },
+      { id: 12, icon: '💭', color: 'btn-yellow', title: 'Bab 12: Perasaan & Opini',
+        en: {
+          vocab: [
+            { target: 'I think this idea is brilliant!', id: 'Menurutku ide ini cemerlang!', note: 'I think... = Menurutku / Saya rasa...' },
+            { target: 'I am so proud of your progress.', id: 'Saya sangat bangga dengan kemajuanmu.', note: 'Proud of = bangga terhadap.' }
+          ],
+          builder: { id: 'Saya setuju dengan pendapatmu.', words: ['I', 'agree', 'with', 'you.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Secondo me, è un’ottima idea!', id: 'Menurutku, ini ide yang sangat bagus!', note: 'Secondo me = Menurut saya.' },
+            { target: 'Sono molto felice oggi!', id: 'Saya sangat bahagia hari ini!', note: 'Felice = bahagia.' }
+          ],
+          builder: { id: 'Saya setuju sekali denganmu.', words: ['Sono', 'd’accordo', 'con', 'te.'] }
+        }
+      },
+      { id: 13, icon: '🛋️', color: 'btn-blue', title: 'Bab 13: Rumah & Perabot',
+        en: {
+          vocab: [
+            { target: 'The keys are on the wooden table.', id: 'Kunci-kuncinya ada di atas meja kayu.', note: 'On = di atas menempel.' },
+            { target: 'Our living room is cozy and bright.', id: 'Ruang tamu kami nyaman dan terang.', note: 'Cozy = nyaman dan hangat.' }
+          ],
+          builder: { id: 'Lampu itu ada di sebelah sofa.', words: ['The', 'lamp', 'is', 'next', 'to', 'the', 'sofa.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Le chiavi sono sul tavolo.', id: 'Kunci-kuncinya ada di atas meja.', note: 'Sul = di atas (su + il).' },
+            { target: 'Il soggiorno è molto accogliente.', id: 'Ruang tamunya sangat nyaman.', note: 'Soggiorno = ruang tamu.' }
+          ],
+          builder: { id: 'Kucingnya tidur di atas sofa.', words: ['Il', 'gatto', 'dorme', 'sul', 'divano.'] }
+        }
+      },
+      { id: 14, icon: '🦊', color: 'btn-purple', title: 'Bab 14: Alam & Hewan',
+        en: {
+          vocab: [
+            { target: 'The dolphin swims fast in the ocean.', id: 'Lumba-lumba berenang cepat di samudra.', note: 'Dolphin = lumba-lumba.' },
+            { target: 'We hiked up the green mountain.', id: 'Kami mendaki gunung yang hijau.', note: 'Mountain = gunung.' }
+          ],
+          builder: { id: 'Burung-burung bernyanyi di hutan.', words: ['Birds', 'sing', 'in', 'the', 'forest.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Il delfino nuota veloce nel mare.', id: 'Lumba-lumba berenang cepat di laut.', note: 'Il mare = laut.' },
+            { target: 'La montagna è coperta di neve.', id: 'Gunungnya tertutup salju.', note: 'La neve = salju.' }
+          ],
+          builder: { id: 'Anjing dan kucing bermain bersama.', words: ['Il', 'cane', 'e', 'il', 'gatto', 'giocano.'] }
+        }
+      },
+      { id: 15, icon: '🎭', color: 'btn-coral', title: 'Bab 15: Budaya & Festival',
+        en: {
+          vocab: [
+            { target: 'People celebrate with music and fireworks.', id: 'Orang-orang merayakan dengan musik dan kembang api.', note: 'Fireworks = kembang api.' },
+            { target: 'Traditional food brings everyone together.', id: 'Makanan tradisional menyatukan semua orang.', note: 'Together = bersama-sama.' }
+          ],
+          builder: { id: 'Festivalnya penuh warna dan meriah.', words: ['The', 'festival', 'is', 'very', 'colorful.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'Il Carnevale di Venezia è famoso.', id: 'Karnaval Venesia sangat terkenal.', note: 'Terkenal dengan topeng indahnya!' },
+            { target: 'Festeggiamo insieme in piazza!', id: 'Mari kita rayakan bersama di alun-alun!', note: 'La piazza = alun-alun kota.' }
+          ],
+          builder: { id: 'Italia terkenal dengan seni dan musik.', words: ['L’Italia', 'è', 'famosa', 'per', 'l’arte.'] }
+        }
+      },
+      { id: 16, icon: '🚀', color: 'btn-green', title: 'Bab 16: Teknologi & Masa Depan',
+        en: {
+          vocab: [
+            { target: 'Artificial intelligence helps us learn faster.', id: 'Kecerdasan buatan membantu kita belajar lebih cepat.', note: 'Faster = lebih cepat.' },
+            { target: 'Please charge your phone before leaving.', id: 'Tolong isi daya ponselmu sebelum berangkat.', note: 'Charge = mengisi daya.' }
+          ],
+          builder: { id: 'Masa depan terlihat sangat cerah.', words: ['The', 'future', 'looks', 'very', 'bright.'] }
+        },
+        it: {
+          vocab: [
+            { target: 'L’intelligenza artificiale ci aiuta a studiare.', id: 'Kecerdasan buatan membantu kita belajar.', note: 'Studiare = belajar.' },
+            { target: 'Hai una connessione Wi-Fi veloce?', id: 'Apakah kamu punya koneksi Wi-Fi cepat?', note: 'Veloce = cepat.' }
+          ],
+          builder: { id: 'Teknologi mengubah dunia kita.', words: ['La', 'tecnologia', 'cambia', 'il', 'mondo.'] }
+        }
+      },
+      { id: 17, icon: '🏆', color: 'btn-yellow', title: 'Bab 17: Percakapan Fasih & Idiom',
+        en: {
+          vocab: [
+            { target: 'Learning this language is a piece of cake!', id: 'Belajar bahasa ini gampang sekali!', note: 'Idiom: "A piece of cake" = sangat mudah.' },
+            { target: 'Practice makes perfect every single day.', id: 'Latihan membuat sempurna setiap hari.', note: 'Pepatah klasik pembelajar bahasa.' }
+          ],
+          builder: { id: 'Semoga sukses dalam ujianmu!', words: ['Break', 'a', 'leg', 'on', 'your', 'exam!'] }
+        },
+        it: {
+          vocab: [
+            { target: 'In bocca al lupo per il tuo esame!', id: 'Semoga sukses besar untuk ujianmu!', note: 'Idiom Italia untuk "Good luck!" (dijawab: Crepi il lupo!).' },
+            { target: 'Chi va piano va sano e va lontano.', id: 'Siapa yang berjalan pelan akan selamat dan sampai jauh.', note: 'Pepatah bijak Italia.' }
+          ],
+          builder: { id: 'Semuanya akan berjalan lancar!', words: ['Andrà', 'tutto', 'bene!'] }
+        }
+      }
+    ];
+
+    // -------------------------------------------------------------------------
+    // 6. BUKU CERITA INTERAKTIF & BACA & PAHAM DATA
+    // -------------------------------------------------------------------------
+    const STORIES_DATA = {
+      en: [
+        {
+          title: 'Lumi at the Sunny Cafe ☕',
+          emoji: '🦉🥐☕',
+          paragraphs: [
+            {
+              words: [
+                { w: 'Every', id: 'Setiap', note: 'Kata keterangan frekuensi.' },
+                { w: 'morning,', id: 'pagi,', note: 'Morning = pagi hari.' },
+                { w: 'Lumi', id: 'Lumi', note: 'Nama maskot kita.' },
+                { w: 'walks', id: 'berjalan', note: 'Simple present (+s untuk subjek tunggal).' },
+                { w: 'to', id: 'ke', note: 'Preposisi arah.' },
+                { w: 'a', id: 'sebuah', note: 'Artikel tunggal.' },
+                { w: 'cozy', id: 'nyaman', note: 'Kata sifat sebelum kata benda.' },
+                { w: 'cafe.', id: 'kafe.', note: 'Tempat minum kopi.' }
+              ],
+              fullId: 'Setiap pagi, Lumi berjalan ke sebuah kafe yang nyaman.'
+            },
+            {
+              words: [
+                { w: 'He', id: 'Dia', note: 'Kata ganti subjek laki-laki.' },
+                { w: 'orders', id: 'memesan', note: 'Simple present dari "order".' },
+                { w: 'warm', id: 'hangat', note: 'Warm = hangat.' },
+                { w: 'milk', id: 'susu', note: 'Kata benda tak terhitung.' },
+                { w: 'and', id: 'dan', note: 'Kata hubung.' },
+                { w: 'a', id: 'sebuah', note: 'Artikel tunggal.' },
+                { w: 'sweet', id: 'manis', note: 'Sweet = manis.' },
+                { w: 'croissant.', id: 'roti bulan sabit.', note: 'Kue khas sarapan.' }
+              ],
+              fullId: 'Dia memesan susu hangat dan sebuah croissant manis.'
+            }
+          ],
+          question: 'Apa yang dipesan Lumi di kafe?',
+          options: [
+            { text: 'Susu hangat dan croissant manis', correct: true },
+            { text: 'Sup tomat dan es krim', correct: false },
+            { text: 'Teh hijau dan nasi goreng', correct: false }
+          ]
+        },
+        {
+          title: 'The Lost Train Ticket 🚆',
+          emoji: '🎫🚆🗺️',
+          paragraphs: [
+            {
+              words: [
+                { w: 'Sara', id: 'Sara', note: 'Nama tokoh.' },
+                { w: 'arrived', id: 'tiba', note: 'Past tense (V2) dari arrive.' },
+                { w: 'early', id: 'lebih awal', note: 'Lawan kata "late".' },
+                { w: 'at', id: 'di', note: 'Preposisi tempat.' },
+                { w: 'the', id: 'itu', note: 'Artikel spesifik.' },
+                { w: 'station.', id: 'stasiun.', note: 'Stasiun kereta.' }
+              ],
+              fullId: 'Sara tiba lebih awal di stasiun.'
+            },
+            {
+              words: [
+                { w: 'Her', id: 'Miliknya', note: 'Possessive adjective perempuan.' },
+                { w: 'blue', id: 'biru', note: 'Warna ditaruh sebelum benda.' },
+                { w: 'ticket', id: 'tiket', note: 'Tiket kereta.' },
+                { w: 'was', id: 'berada', note: 'Past tense dari "is".' },
+                { w: 'inside', id: 'di dalam', note: 'Preposisi posisi.' },
+                { w: 'her', id: 'miliknya', note: 'Possessive adjective.' },
+                { w: 'pocket!', id: 'saku!', note: 'Saku baju/jaket.' }
+              ],
+              fullId: 'Tiket birunya berada di dalam sakunya!'
+            }
+          ],
+          question: 'Di mana Sara menemukan tiket birunya?',
+          options: [
+            { text: 'Di dalam sakunya', correct: true },
+            { text: 'Di bawah kursi kereta', correct: false },
+            { text: 'Di rumah neneknya', correct: false }
+          ]
+        }
+      ],
+      it: [
+        {
+          title: 'Lumi al Bar di Roma ☕',
+          emoji: '🦉🥐🇮🇹',
+          paragraphs: [
+            {
+              words: [
+                { w: 'Ogni', id: 'Setiap', note: 'Berlaku untuk tunggal.' },
+                { w: 'mattina,', id: 'pagi,', note: 'La mattina (♀️).' },
+                { w: 'Lumi', id: 'Lumi', note: 'Maskot kita.' },
+                { w: 'entra', id: 'masuk', note: 'Dari kata kerja "entrare".' },
+                { w: 'in', id: 'ke dalam', note: 'Preposisi.' },
+                { w: 'un', id: 'sebuah', note: 'Artikel maskulin.' },
+                { w: 'bar', id: 'kafe', note: 'Di Italia, kedai kopi disebut "bar".' },
+                { w: 'accogliente.', id: 'nyaman.', note: 'Kata sifat netral (-e).' }
+              ],
+              fullId: 'Setiap pagi, Lumi masuk ke sebuah kafe yang nyaman.'
+            },
+            {
+              words: [
+                { w: 'Lui', id: 'Dia', note: 'Subjek laki-laki.' },
+                { w: 'ordina', id: 'memesan', note: 'Dari "ordinare".' },
+                { w: 'latte', id: 'susu', note: 'Il latte (♂️).' },
+                { w: 'caldo', id: 'hangat', note: 'Menyesuaikan gender "latte" (♂️).' },
+                { w: 'e', id: 'dan', note: 'Kata hubung.' },
+                { w: 'un', id: 'sebuah', note: 'Artikel maskulin.' },
+                { w: 'cornetto', id: 'croissant', note: 'Kue sarapan Italia.' },
+                { w: 'dolce.', id: 'manis.', note: 'Dolce = manis.' }
+              ],
+              fullId: 'Dia memesan susu hangat dan sebuah croissant manis.'
+            }
+          ],
+          question: 'Di Italia, tempat minum kopi di pagi hari disebut apa?',
+          options: [
+            { text: 'Un bar', correct: true },
+            { text: 'Una stazione', correct: false },
+            { text: 'Un giardino', correct: false }
+          ]
+        },
+        {
+          title: 'Una Pizza per la Regina 🍕',
+          emoji: '🍕👑🇮🇹',
+          paragraphs: [
+            {
+              words: [
+                { w: 'Un', id: 'Seorang', note: 'Artikel maskulin.' },
+                { w: 'pizzaiolo', id: 'pembuat pizza', note: 'Profesi pembuat pizza.' },
+                { w: 'preparò', id: 'menyiapkan', note: 'Bentuk lampau "preparare".' },
+                { w: 'una', id: 'sebuah', note: 'Artikel feminin.' },
+                { w: 'pizza', id: 'pizza', note: 'La pizza (♀️).' },
+                { w: 'con', id: 'dengan', note: 'Preposisi.' },
+                { w: 'tre', id: 'tiga', note: 'Angka 3.' },
+                { w: 'colori.', id: 'warna.', note: 'Jamak dari "colore".' }
+              ],
+              fullId: 'Seorang pembuat pizza menyiapkan sebuah pizza dengan tiga warna.'
+            },
+            {
+              words: [
+                { w: 'Pomodori', id: 'Tomat', note: 'Jamak maskulin.' },
+                { w: 'rossi,', id: 'merah,', note: 'Rosso → rossi (jamak).' },
+                { w: 'mozzarella', id: 'keju mozzarella', note: 'Feminin tunggal.' },
+                { w: 'bianca', id: 'putih', note: 'Bianco → bianca (♀️).' },
+                { w: 'e', id: 'dan', note: 'Kata hubung.' },
+                { w: 'basilico', id: 'daun kemangi', note: 'Maskulin.' },
+                { w: 'verde!', id: 'hijau!', note: 'Warna bendera Italia.' }
+              ],
+              fullId: 'Tomat merah, mozzarella putih, dan daun kemangi hijau!'
+            }
+          ],
+          question: 'Apa saja tiga warna pada Pizza Margherita?',
+          options: [
+            { text: 'Merah, putih, dan hijau (rossi, bianca, verde)', correct: true },
+            { text: 'Biru, kuning, dan ungu', correct: false },
+            { text: 'Hitam, coklat, dan abu-abu', correct: false }
+          ]
+        }
+      ]
+    };
+
+    const READING_ARTICLES = {
+      en: [
+        {
+          id: 'en-read-1',
+          badge: 'Dialog Kafe & Sopan Santun',
+          title: 'Memesan Makanan Seperti Penutur Asli',
+          text: 'Waiter: "Good morning! What would you like today?"\nGuest: "Hi! I would like an iced latte and a cheese sandwich, please. How much is that?"\nWaiter: "That will be eight dollars. Have a wonderful day!"',
+          grammarTip: 'Gunakan "I would like..." alih-alih "I want..." agar terdengar ramah dan sopan saat memesan makanan.',
+          quiz: {
+            q: 'Ungkapan mana yang paling sopan saat memesan kopi di kafe?',
+            options: [
+              { text: 'I would like an iced latte, please.', correct: true },
+              { text: 'Give me coffee now.', correct: false },
+              { text: 'I want coffee fast.', correct: false }
+            ]
+          }
+        },
+        {
+          id: 'en-read-2',
+          badge: 'Catatan Tata Bahasa: Preposisi Waktu',
+          title: 'Kapan Pakai ON, IN, dan AT?',
+          text: 'We have an English class ON Monday AT nine o’clock IN the morning. Our big festival starts IN November!',
+          grammarTip: 'Rumus cepat: ON untuk hari (on Monday), AT untuk jam spesifik (at 9:00), dan IN untuk bulan/musim/pagi (in November).',
+          quiz: {
+            q: 'Preposisi mana yang tepat untuk: "See you _____ Friday!"?',
+            options: [
+              { text: 'on (on Friday)', correct: true },
+              { text: 'in (in Friday)', correct: false },
+              { text: 'at (at Friday)', correct: false }
+            ]
+          }
+        }
+      ],
+      it: [
+        {
+          id: 'it-read-1',
+          badge: 'Dialog di Bar Italia',
+          title: 'Perbedaan "Ho Fame" vs "Sono Felice"',
+          text: 'Marco: "Ciao Giulia! Come stai oggi?"\nGiulia: "Ciao Marco! Sono molto felice, ma ho anche tanta fame! Andiamo a mangiare una pizza?"',
+          grammarTip: 'Di Italia, perasaan lapar (ho fame), haus (ho sete), dan dingin (ho freddo) menggunakan kata kerja AVERE (punya), bukan ESSERE!',
+          quiz: {
+            q: 'Bagaimana cara bilang "Aku lapar" dalam Bahasa Italia?',
+            options: [
+              { text: 'Ho fame! (memakai Avere)', correct: true },
+              { text: 'Sono fame! (Salah)', correct: false },
+              { text: 'Dov’è fame?', correct: false }
+            ]
+          }
+        },
+        {
+          id: 'it-read-2',
+          badge: 'Catatan Tata Bahasa: Kepemilikan Keluarga',
+          title: 'Il Mio Gatto vs Mia Madre',
+          text: 'Questo è il mio gatto bianco. E questa è mia madre! Noi amiamo molto la nostra casa.',
+          grammarTip: 'Benda biasa wajib memakai artikel (il mio gatto), tetapi anggota keluarga inti tunggal TIDAK memakai artikel (mia madre, mio padre).',
+          quiz: {
+            q: 'Manakah penulisan "ibuku" yang benar dalam Bahasa Italia?',
+            options: [
+              { text: 'Mia madre (tanpa "la")', correct: true },
+              { text: 'La mia madre', correct: false },
+              { text: 'Il mio madre', correct: false }
+            ]
+          }
+        }
+      ]
+    };
+
+    // -------------------------------------------------------------------------
+    // 7. RENDER TAB 1: WINDING 17-CHAPTER PATH (ALL UNLOCKED)
+    // -------------------------------------------------------------------------
+    const LUMI_TIPS = [
+      '"Semua 17 bab sudah terbuka! Klik bab mana saja untuk mulai latihan dan panen +15 💎!"',
+      '"Ketuk tombol 🔊 di dalam pelajaran untuk menirukan logat penutur asli!"',
+      '"Kumpulkan Permata (💎) dari setiap bab untuk membuka kostum kawaii Lumi di tab Toko!"',
+      '"Ganti bahasa Inggris 🇬🇧 atau Italia 🇮🇹 kapan saja lewat tombol bendera di pojok kiri atas!"'
+    ];
+    let tipIndex = 0;
+
+    function rotateLumiTip() {
+      tipIndex = (tipIndex + 1) % LUMI_TIPS.length;
+      document.getElementById('lumiTipText').textContent = LUMI_TIPS[tipIndex];
+    }
+
+    function renderWindingPath() {
+      const isIT = appState.lang === 'it';
+      document.getElementById('trackSubtitle').textContent = isIT
+        ? 'Jalur Bahasa Italia 🇮🇹 • Semua 17 Bab bebas dipilih kapan saja!'
+        : 'Jalur Bahasa Inggris 🇬🇧 • Semua 17 Bab bebas dipilih kapan saja!';
+
+      const container = document.getElementById('windingPathContainer');
+      const waveOffsets = [0, 42, 64, 42, 0, -42, -64, -42];
+
+      container.innerHTML = CHAPTER_TOPICS.map((ch, idx) => {
+        const key = `${appState.lang}-${ch.id}`;
+        const stars = appState.chapterStars[key] || 0;
+        const offsetPx = waveOffsets[idx % waveOffsets.length];
+        const isCompleted = stars > 0;
+
+        // Semua 17 bab memiliki isLocked = false
+        const isLocked = false;
+
+        return `
+          <div class="flex flex-col items-center transition-transform" style="transform: translateX(${offsetPx}px);">
+            <button
+              type="button"
+              onclick="openChapterLesson(${ch.id})"
+              data-locked="${isLocked}"
+              class="btn-tactile ${ch.color} ${!isCompleted && idx === 0 ? 'node-pulse' : ''} w-20 h-20 sm:w-22 sm:h-22 rounded-full flex flex-col items-center justify-center border-4 border-white shadow-md relative cursor-pointer"
+            >
+              <span class="text-3xl sm:text-4xl drop-shadow-xs">${ch.icon}</span>
+              <span class="absolute -top-2 -right-2 bg-white text-slate-800 border-2 border-slate-200 text-[10px] font-black px-2 py-0.5 rounded-full shadow-2xs">
+                ${ch.id}
+              </span>
+            </button>
+
+            <!-- Kartu Label Bab -->
+            <button
+              type="button"
+              onclick="openChapterLesson(${ch.id})"
+              class="mt-2 bg-white hover:bg-amber-50 border-2 ${isCompleted ? 'border-emerald-300' : 'border-slate-200'} px-3.5 py-1.5 rounded-2xl shadow-2xs text-center max-w-[210px] transition-colors"
+            >
+              <p class="font-display font-extrabold text-xs sm:text-sm text-slate-800 leading-tight">${ch.title}</p>
+              <div class="flex items-center justify-center gap-1 mt-0.5 text-[11px] font-extrabold">
+                <span class="${stars >= 1 ? 'text-amber-400' : 'text-slate-300'}">★</span>
+                <span class="${stars >= 2 ? 'text-amber-400' : 'text-slate-300'}">★</span>
+                <span class="${stars >= 3 ? 'text-amber-400' : 'text-slate-300'}">★</span>
+                <span class="ml-1 ${isCompleted ? 'text-emerald-600' : 'text-sky-600'}">
+                  ${isCompleted ? 'Selesai' : 'Terbuka 🔓'}
+                </span>
+              </div>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. INTERACTIVE MULTI-QUESTION LESSON MODAL
+    // -------------------------------------------------------------------------
+    let activeLesson = null;
+
+    function shuffleList(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function openChapterLesson(chapterId) {
+      const ch = CHAPTER_TOPICS.find(c => c.id === chapterId);
+      if (!ch) return;
+
+      const langPack = ch[appState.lang];
+      const otherChapters = CHAPTER_TOPICS.filter(c => c.id !== chapterId);
+      const distractors = shuffleList(otherChapters).slice(0, 2).map(o => o[appState.lang].vocab[0]);
+
+      const q1 = langPack.vocab[0];
+      const q2 = langPack.vocab[1];
+      const builder = langPack.builder;
+
+      const steps = [
+        // Step 1: Multiple Choice Translation + Audio
+        {
+          type: 'mc',
+          promptLabel: 'Terjemahkan kalimat ini ke Bahasa Indonesia:',
+          phrase: q1.target,
+          note: q1.note,
+          options: shuffleList([
+            { text: q1.id, correct: true },
+            { text: distractors[0].id, correct: false },
+            { text: distractors[1].id, correct: false }
+          ])
+        },
+        // Step 2: Word-Bank Sentence Builder
+        {
+          type: 'builder',
+          promptLabel: 'Susun kata menjadi kalimat yang tepat:',
+          meaningId: builder.id,
+          targetWords: builder.words,
+          fullSentence: builder.words.join(' ')
+        },
+        // Step 3: Reverse Multiple Choice (Indonesia -> Target Language)
+        {
+          type: 'mc_reverse',
+          promptLabel: `Pilih kalimat ${appState.lang === 'it' ? 'Italia' : 'Inggris'} yang tepat untuk:`,
+          meaningId: q2.id,
+          note: q2.note,
+          options: shuffleList([
+            { text: q2.target, correct: true },
+            { text: distractors[0].target, correct: false },
+            { text: distractors[1].target, correct: false }
+          ])
+        }
+      ];
+
+      activeLesson = {
+        chapterId,
+        chapterTitle: ch.title,
+        steps,
+        index: 0,
+        correctCount: 0,
+        answered: false,
+        selectedIdx: -1,
+        builtWords: [],
+        bankWords: shuffleList(builder.words.map((w, i) => ({ id: `${i}-${w}`, text: w })))
+      };
+
+      document.getElementById('lessonModal').classList.remove('hidden');
+      renderLessonModalStep();
+    }
+
+    function closeLessonModal() {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      activeLesson = null;
+      document.getElementById('lessonModal').classList.add('hidden');
+    }
+
+    function renderLessonModalStep() {
+      if (!activeLesson) return;
+      const total = activeLesson.steps.length;
+      const step = activeLesson.steps[activeLesson.index];
+
+      document.getElementById('lessonStepCounter').textContent = `${activeLesson.index + 1}/${total}`;
+      document.getElementById('lessonProgressFill').style.width = `${Math.round(((activeLesson.index + 1) / total) * 100)}%`;
+
+      const stage = document.getElementById('lessonModalStage');
+      const fbBanner = document.getElementById('lessonFeedbackBanner');
+      fbBanner.classList.add('hidden');
+
+      if (step.type === 'mc' || step.type === 'mc_reverse') {
+        const headerCard = step.type === 'mc'
+          ? `
+            <div class="kawaii-card p-4 bg-white flex items-center gap-3">
+              <button type="button" onclick="speakPhrase('${step.phrase.replace(/'/g, "\\'")}')" class="btn-tactile btn-blue w-12 h-12 rounded-2xl text-xl flex items-center justify-center shrink-0" title="Dengarkan Pelafalan">
+                🔊
+              </button>
+              <div>
+                <p class="font-display font-extrabold text-base sm:text-lg text-slate-800">${step.phrase}</p>
+                <button type="button" onclick="speakPhrase('${step.phrase.replace(/'/g, "\\'")}', 0.72)" class="text-[11px] font-extrabold text-sky-600 hover:underline">
+                  🐢 Putar pelan
+                </button>
+              </div>
+            </div>
+          `
+          : `
+            <div class="kawaii-card p-4 bg-amber-50 border-amber-200">
+              <p class="font-display font-extrabold text-base sm:text-lg text-slate-800">"${step.meaningId}"</p>
+            </div>
+          `;
+
+        const optionsHTML = step.options.map((opt, idx) => {
+          let cls = 'btn-card hover:border-sky-400';
+          if (activeLesson.answered) {
+            if (opt.correct) cls = 'btn-green';
+            else if (idx === activeLesson.selectedIdx) cls = 'btn-coral animate-shake';
+          }
+          return `
+            <button
+              type="button"
+              onclick="submitLessonMC(${idx})"
+              ${activeLesson.answered ? 'disabled' : ''}
+              class="w-full btn-tactile ${cls} p-3.5 rounded-2xl font-extrabold text-sm text-left"
+            >
+              ${opt.text}
+            </button>
+          `;
+        }).join('');
+
+        stage.innerHTML = `
+          <div class="space-y-4">
+            <span class="text-xs font-extrabold uppercase tracking-wider bg-sky-100 text-sky-700 px-3 py-1 rounded-full">
+              ${step.promptLabel}
+            </span>
+            ${headerCard}
+            <div class="space-y-2.5">${optionsHTML}</div>
+          </div>
+        `;
+
+        if (step.type === 'mc' && !activeLesson.answered) {
+          setTimeout(() => speakPhrase(step.phrase), 200);
+        }
+      } else if (step.type === 'builder') {
+        const builtHTML = activeLesson.builtWords.map((item, idx) => `
+          <button type="button" onclick="removeWordFromBuilt(${idx})" ${activeLesson.answered ? 'disabled' : ''} class="btn-tactile btn-blue px-3 py-2 rounded-xl font-extrabold text-sm">
+            ${item.text}
+          </button>
+        `).join('');
+
+        const bankHTML = activeLesson.bankWords.map((item, idx) => `
+          <button type="button" onclick="addWordToBuilt(${idx})" ${activeLesson.answered ? 'disabled' : ''} class="btn-tactile btn-card px-3 py-2 rounded-xl font-extrabold text-sm">
+            ${item.text}
+          </button>
+        `).join('');
+
+        stage.innerHTML = `
+          <div class="space-y-4">
+            <span class="text-xs font-extrabold uppercase tracking-wider bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
+              ${step.promptLabel}
+            </span>
+            <div class="kawaii-card p-4 bg-white">
+              <p class="text-xs font-bold text-slate-400">Arti kalimat:</p>
+              <p class="font-display font-extrabold text-base sm:text-lg text-slate-800">"${step.meaningId}"</p>
+            </div>
+
+            <!-- Area Susunan Kata -->
+            <div class="min-h-[60px] p-3 rounded-2xl bg-slate-100 border-2 border-dashed border-slate-300 flex flex-wrap gap-2 items-center">
+              ${builtHTML || '<span class="text-xs font-bold text-slate-400">Ketuk kata di bawah untuk menyusun kalimat...</span>'}
+            </div>
+
+            <!-- Bank Kata -->
+            <div class="flex flex-wrap gap-2 justify-center pt-1">${bankHTML}</div>
+
+            ${!activeLesson.answered ? `
+              <button
+                type="button"
+                onclick="submitLessonBuilder()"
+                ${activeLesson.builtWords.length === 0 ? 'disabled' : ''}
+                class="w-full btn-tactile ${activeLesson.builtWords.length === 0 ? 'bg-slate-200 text-slate-400' : 'btn-green'} py-3.5 rounded-2xl font-extrabold text-sm"
+              >
+                Periksa Jawaban ✨
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }
+    }
+
+    function submitLessonMC(idx) {
+      if (!activeLesson || activeLesson.answered) return;
+      const step = activeLesson.steps[activeLesson.index];
+      const chosen = step.options[idx];
+      activeLesson.answered = true;
+      activeLesson.selectedIdx = idx;
+
+      if (chosen.correct) {
+        activeLesson.correctCount += 1;
+        if (step.type === 'mc_reverse') speakPhrase(chosen.text);
+      } else {
+        appState.energy = Math.max(1, appState.energy - 1);
+        saveAppState();
+        syncAllAvatarsAndHUD();
+      }
+
+      renderLessonModalStep();
+      const correctObj = step.options.find(o => o.correct);
+      showLessonFeedback(chosen.correct, correctObj.text, step.note);
+    }
+
+    function addWordToBuilt(bankIdx) {
+      if (!activeLesson || activeLesson.answered) return;
+      const [picked] = activeLesson.bankWords.splice(bankIdx, 1);
+      activeLesson.builtWords.push(picked);
+      renderLessonModalStep();
+    }
+
+    function removeWordFromBuilt(builtIdx) {
+      if (!activeLesson || activeLesson.answered) return;
+      const [removed] = activeLesson.builtWords.splice(builtIdx, 1);
+      activeLesson.bankWords.push(removed);
+      renderLessonModalStep();
+    }
+
+    function submitLessonBuilder() {
+      if (!activeLesson || activeLesson.answered) return;
+      const step = activeLesson.steps[activeLesson.index];
+      const userStr = activeLesson.builtWords.map(w => w.text).join(' ').trim();
+      const isCorrect = userStr.toLowerCase() === step.fullSentence.toLowerCase();
+
+      activeLesson.answered = true;
+      if (isCorrect) {
+        activeLesson.correctCount += 1;
+        speakPhrase(step.fullSentence);
+      } else {
+        appState.energy = Math.max(1, appState.energy - 1);
+        saveAppState();
+        syncAllAvatarsAndHUD();
+      }
+
+      renderLessonModalStep();
+      showLessonFeedback(isCorrect, step.fullSentence, 'Susunan kata yang tepat membuat kalimat terdengar alami!');
+    }
+
+    function showLessonFeedback(isCorrect, correctAnswer, tipNote) {
+      const banner = document.getElementById('lessonFeedbackBanner');
+      banner.classList.remove('hidden');
+
+      if (isCorrect) {
+        banner.className = 'px-4 sm:px-6 py-4 bg-emerald-100 border-t-2 border-emerald-300 space-y-3 shrink-0';
+        banner.innerHTML = `
+          <div class="flex items-start gap-2.5">
+            <span class="text-2xl">🎉</span>
+            <div>
+              <p class="font-display font-extrabold text-base text-emerald-800">Hebat Sekali! Jawaban Benar!</p>
+              <p class="text-xs font-bold text-emerald-700">${tipNote}</p>
+            </div>
+          </div>
+          <button type="button" onclick="nextLessonStep()" class="w-full btn-tactile btn-green py-3 rounded-2xl font-extrabold text-sm">
+            Lanjutkan ➡️
+          </button>
+        `;
+      } else {
+        banner.className = 'px-4 sm:px-6 py-4 bg-rose-100 border-t-2 border-rose-300 space-y-3 shrink-0';
+        banner.innerHTML = `
+          <div class="flex items-start gap-2.5">
+            <span class="text-2xl">💡</span>
+            <div>
+              <p class="font-display font-extrabold text-base text-rose-800">Hampir Tepat! Jawaban yang benar:</p>
+              <p class="text-xs font-extrabold text-rose-700">"${correctAnswer}"</p>
+            </div>
+          </div>
+          <button type="button" onclick="nextLessonStep()" class="w-full btn-tactile btn-coral py-3 rounded-2xl font-extrabold text-sm">
+            Mengerti, Lanjut ➡️
+          </button>
+        `;
+      }
+    }
+
+    function nextLessonStep() {
+      if (!activeLesson) return;
+      if (activeLesson.index + 1 < activeLesson.steps.length) {
+        activeLesson.index += 1;
+        const nextStep = activeLesson.steps[activeLesson.index];
+        activeLesson.answered = false;
+        activeLesson.selectedIdx = -1;
+        if (nextStep.type === 'builder') {
+          activeLesson.builtWords = [];
+          activeLesson.bankWords = shuffleList(nextStep.targetWords.map((w, i) => ({ id: `${i}-${w}`, text: w })));
+        }
+        renderLessonModalStep();
+      } else {
+        finishLessonRewardScreen();
+      }
+    }
+
+    function finishLessonRewardScreen() {
+      const earnedXP = 25;
+      const earnedGems = 15;
+      const stars = Math.max(1, activeLesson.correctCount);
+      const key = `${appState.lang}-${activeLesson.chapterId}`;
+
+      appState.xp += earnedXP;
+      appState.gems += earnedGems;
+      appState.chapterStars[key] = Math.max(appState.chapterStars[key] || 0, stars);
+      saveAppState();
+      syncAllAvatarsAndHUD();
+      renderWindingPath();
+
+      document.getElementById('lessonFeedbackBanner').classList.add('hidden');
+      const colors = ['#58CC02', '#1CB0F6', '#FFC800', '#FF4B4B', '#A855F7'];
+      const confetti = Array.from({ length: 22 }, (_, i) =>
+        `<div class="confetti-bit" style="left:${(i * 4.5) % 95}%; top:-10px; background:${colors[i % colors.length]}; animation-delay:${(i % 5) * 0.12}s;"></div>`
+      ).join('');
+
+      document.getElementById('lessonModalStage').innerHTML = `
+        <div class="relative overflow-hidden text-center py-4 space-y-4">
+          ${confetti}
+          <div class="w-24 h-24 mx-auto animate-bob">${renderLumiSVG(appState.equippedSkin)}</div>
+          <div>
+            <h3 class="font-display font-extrabold text-2xl text-slate-800">Pelajaran Tuntas! 🎊</h3>
+            <p class="text-xs sm:text-sm font-bold text-slate-600 mt-1">Kamu menyelesaikan <strong>${activeLesson.chapterTitle}</strong>!</p>
+          </div>
+          <div class="flex justify-center gap-3">
+            <div class="kawaii-card px-5 py-3 bg-amber-50 border-amber-300">
+              <span class="block text-[10px] font-extrabold text-amber-600 uppercase">Bonus XP</span>
+              <span class="font-display font-extrabold text-xl text-amber-700">+${earnedXP} XP</span>
+            </div>
+            <div class="kawaii-card px-5 py-3 bg-sky-50 border-sky-300">
+              <span class="block text-[10px] font-extrabold text-sky-600 uppercase">Permata</span>
+              <span class="font-display font-extrabold text-xl text-sky-700">+${earnedGems} 💎</span>
+            </div>
+          </div>
+          <button type="button" onclick="closeLessonModal()" class="w-full btn-tactile btn-green py-3.5 rounded-2xl font-extrabold text-base">
+            Kembali ke Jalur 17 Bab 🗺️
+          </button>
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. TAB 2: BUKU CERITA INTERAKTIF
+    // -------------------------------------------------------------------------
+    let storyQuizPicked = null;
+
+    function renderStoriesTab() {
+      const stories = STORIES_DATA[appState.lang];
+      const idx = appState.activeStoryIdx % stories.length;
+      const story = stories[idx];
+
+      document.getElementById('storySelectorPills').innerHTML = stories.map((st, i) => `
+        <button
+          type="button"
+          onclick="selectStory(${i})"
+          class="btn-tactile ${i === idx ? 'btn-yellow' : 'btn-card'} px-3.5 py-2 rounded-2xl font-extrabold text-xs shrink-0"
+        >
+          ${st.emoji} ${st.title}
+        </button>
+      `).join('');
+
+      const fullStoryText = story.paragraphs.map(p => p.words.map(x => x.w).join(' ')).join(' ');
+
+      const paragraphsHTML = story.paragraphs.map(p => {
+        const clickableWords = p.words.map(item => `
+          <span
+            onclick="openWordPopover('${encodeURIComponent(item.w)}', '${encodeURIComponent(item.id)}', '${encodeURIComponent(item.note)}')"
+            class="tap-word text-sm sm:text-base"
+          >${item.w}</span>
+        `).join(' ');
+
+        return `
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="leading-relaxed">${clickableWords}</div>
+            <p class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+              💬 Arti: "${p.fullId}"
+            </p>
+          </div>
+        `;
+      }).join('');
+
+      const quizHTML = story.options.map((opt, i) => {
+        let cls = 'btn-card hover:border-sky-400';
+        if (storyQuizPicked !== null) {
+          if (opt.correct) cls = 'btn-green';
+          else if (storyQuizPicked === i) cls = 'btn-coral animate-shake';
+        }
+        return `
+          <button type="button" onclick="answerStoryQuiz(${i}, ${opt.correct})" class="w-full btn-tactile ${cls} p-3 rounded-2xl font-extrabold text-xs sm:text-sm text-left">
+            ${opt.text}
+          </button>
+        `;
+      }).join('');
+
+      document.getElementById('storyReaderCard').innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-100 pb-3">
+          <div>
+            <span class="text-2xl">${story.emoji}</span>
+            <h3 class="font-display font-extrabold text-lg text-slate-800">${story.title}</h3>
+          </div>
+          <button type="button" onclick="speakPhrase('${fullStoryText.replace(/'/g, "\\'")}', 0.9)" class="btn-tactile btn-blue px-3.5 py-2 rounded-2xl font-extrabold text-xs">
+            🔊 Baca Semua
+          </button>
+        </div>
+
+        <div class="space-y-3">${paragraphsHTML}</div>
+
+        <div class="pt-2 border-t-2 border-slate-100 space-y-2.5">
+          <p class="font-display font-extrabold text-sm text-slate-800">🧠 Cek Pemahaman: ${story.question}</p>
+          <div class="space-y-2">${quizHTML}</div>
+        </div>
+      `;
+    }
+
+    function selectStory(idx) {
+      appState.activeStoryIdx = idx;
+      storyQuizPicked = null;
+      saveAppState();
+      renderStoriesTab();
+    }
+
+    function answerStoryQuiz(optIdx, isCorrect) {
+      storyQuizPicked = optIdx;
+      if (isCorrect) {
+        appState.gems += 10;
+        appState.xp += 15;
+        saveAppState();
+        syncAllAvatarsAndHUD();
+        showToast('🎉 Benar! +10 💎 Permata dari membaca cerita!');
+      } else {
+        showToast('Coba baca lagi terjemahan kalimat di atas ya! 💡');
+      }
+      renderStoriesTab();
+    }
+
+    function openWordPopover(encWord, encId, encNote) {
+      const word = decodeURIComponent(encWord).replace(/[.,!?]/g, '');
+      const meaning = decodeURIComponent(encId);
+      const note = decodeURIComponent(encNote);
+
+      document.getElementById('popWordOriginal').textContent = word;
+      document.getElementById('popWordMeaning').textContent = meaning;
+      document.getElementById('popWordNote').textContent = `💡 Catatan Lumi: ${note}`;
+      document.getElementById('popWordAudioBtn').onclick = () => speakPhrase(word);
+      document.getElementById('wordPopoverModal').classList.remove('hidden');
+      speakPhrase(word);
+    }
+
+    function closeWordPopover() {
+      document.getElementById('wordPopoverModal').classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------------------
+    // 10. TAB 3: BACA & PAHAM
+    // -------------------------------------------------------------------------
+    function renderReadingTab() {
+      const list = READING_ARTICLES[appState.lang];
+      const container = document.getElementById('readingLessonsContainer');
+
+      container.innerHTML = list.map(art => {
+        const solved = Boolean(appState.readQuizSolved[art.id]);
+        const optionsHTML = art.quiz.options.map((opt, idx) => `
+          <button
+            type="button"
+            onclick="checkReadingQuiz('${art.id}', ${opt.correct})"
+            class="w-full btn-tactile ${solved && opt.correct ? 'btn-green' : 'btn-card hover:border-sky-400'} p-3 rounded-2xl font-extrabold text-xs sm:text-sm text-left"
+          >
+            ${opt.text}
+          </button>
+        `).join('');
+
+        return `
+          <article class="kawaii-card p-5 bg-white space-y-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider bg-sky-100 text-sky-700 px-3 py-1 rounded-full">
+                ${art.badge}
+              </span>
+              <button type="button" onclick="speakPhrase('${art.text.replace(/\n/g, ' ').replace(/'/g, "\\'")}')" class="btn-tactile btn-blue px-3 py-1.5 rounded-xl font-extrabold text-xs">
+                🔊 Audio
+              </button>
+            </div>
+
+            <h3 class="font-display font-extrabold text-lg text-slate-800">${art.title}</h3>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-sm font-bold text-slate-800 whitespace-pre-line leading-relaxed">
+              ${art.text}
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs font-bold text-amber-900">
+              🦉 <strong>Catatan Grammar:</strong> ${art.grammarTip}
+            </div>
+
+            <div class="pt-1 space-y-2">
+              <p class="font-display font-extrabold text-sm text-slate-800">🎯 Kuis Kilat: ${art.quiz.q}</p>
+              <div class="space-y-2">${optionsHTML}</div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function checkReadingQuiz(articleId, isCorrect) {
+      if (isCorrect) {
+        if (!appState.readQuizSolved[articleId]) {
+          appState.readQuizSolved[articleId] = true;
+          appState.gems += 10;
+          appState.xp += 15;
+          saveAppState();
+          syncAllAvatarsAndHUD();
+          showToast('🌟 Tepat! +10 💎 Permata berhasil diraih!');
+        } else {
+          showToast('✅ Kamu sudah menguasai materi ini!');
+        }
+        renderReadingTab();
+      } else {
+        showToast('Belum pas, cek lagi catatan grammar di kotak kuning ya! 💡');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 11. TAB 4: LUMI AI TUTOR CHAT
+    // -------------------------------------------------------------------------
+    let chatMessages = [];
+
+    function resetLumiChat() {
+      const isIT = appState.lang === 'it';
+      chatMessages = [
+        {
+          sender: 'lumi',
+          foreign: isIT
+            ? 'Ciao! Sono Lumi! Come stai oggi? Cosa vorresti praticare?'
+            : 'Hello! I am Lumi! How are you today? What would you like to practice?',
+          id: isIT
+            ? 'Halo! Aku Lumi! Apa kabarmu hari ini? Apa yang ingin kamu latih?'
+            : 'Halo! Aku Lumi! Apa kabarmu hari ini? Apa yang ingin kamu latih?',
+          tip: 'Coba balas dalam bahasa target atau klik tombol balasan cepat di bawah!'
+        }
+      ];
+      renderLumiChat();
+    }
+
+    function renderLumiChat() {
+      const isIT = appState.lang === 'it';
+      const feed = document.getElementById('lumiChatFeed');
+
+      feed.innerHTML = chatMessages.map(m => {
+        if (m.sender === 'user') {
+          return `
+            <div class="flex justify-end">
+              <div class="bg-[#1CB0F6] text-white px-4 py-2.5 rounded-3xl rounded-tr-sm max-w-[82%] font-bold text-sm shadow-2xs">
+                ${m.text}
+              </div>
+            </div>
+          `;
+        }
+        return `
+          <div class="flex items-start gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-purple-100 border border-purple-200 flex items-center justify-center shrink-0 overflow-hidden">
+              ${renderLumiSVG(appState.equippedSkin)}
+            </div>
+            <div class="bg-white border-2 border-slate-200 px-4 py-3 rounded-3xl rounded-tl-sm max-w-[86%] space-y-1.5 shadow-2xs">
+              <p class="font-display font-extrabold text-sm text-slate-800">${m.foreign}</p>
+              <p class="text-xs font-semibold text-slate-500">"${m.id}"</p>
+              <div class="bg-amber-50 border border-amber-200 rounded-xl px-2.5 py-1.5 text-[11px] font-bold text-amber-900">
+                💡 ${m.tip}
+              </div>
+              <button type="button" onclick="speakPhrase('${m.foreign.replace(/'/g, "\\'")}')" class="text-[11px] font-extrabold text-sky-600 hover:underline">
+                🔊 Dengarkan Lumi
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      feed.scrollTop = feed.scrollHeight;
+
+      const chips = isIT
+        ? ['Ciao Lumi! Sto benissimo, grazie!', 'Vorrei ordinare una pizza calda!', 'Come si dice "terima kasih" in italiano?']
+        : ['Hi Lumi! I am doing great today!', 'I would like an iced coffee, please!', 'How do I say "semoga sukses" in English?'];
+
+      document.getElementById('lumiPromptChips').innerHTML = chips.map(ch => `
+        <button type="button" onclick="quickSendLumi('${ch.replace(/'/g, "\\'")}')" class="btn-tactile btn-card px-3 py-1.5 rounded-xl font-bold text-xs text-slate-700 hover:border-purple-400">
+          💬 ${ch}
+        </button>
+      `).join('');
+    }
+
+    function quickSendLumi(text) {
+      document.getElementById('lumiInput').value = text;
+      sendLumiMessage(new Event('submit'));
+    }
+
+    function sendLumiMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('lumiInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      chatMessages.push({ sender: 'user', text });
+      input.value = '';
+
+      const isIT = appState.lang === 'it';
+      const lower = text.toLowerCase();
+
+      let reply = {
+        sender: 'lumi',
+        foreign: isIT
+          ? 'Bravissimo! La tua frase è molto chiara e naturale!'
+          : 'Awesome job! Your sentence sounds super clear and natural!',
+        id: 'Hebat sekali! Kalimatmu terdengar sangat jelas dan alami!',
+        tip: isIT
+          ? 'Lanjutkan! Coba buat kalimat lain menggunakan kata kerja "vorrei" (saya ingin) atau "ho" (saya punya).'
+          : 'Keren! Coba lanjutkan dengan menceritakan makanan favorit atau rencanamu hari ini.'
+      };
+
+      if (lower.includes('terima kasih')) {
+        reply = {
+          sender: 'lumi',
+          foreign: isIT ? 'Si dice "Grazie mille!" (Terima kasih banyak!)' : 'You can say "Thank you so much!"',
+          id: isIT ? 'Dalam bahasa Italia: "Grazie mille!"' : 'Dalam bahasa Inggris: "Thank you so much!"',
+          tip: isIT ? 'Jika ingin menjawab "Sama-sama", katakan "Prego!".' : 'Untuk menjawab "Sama-sama", katakan "You’re welcome!".'
+        };
+      } else if (lower.includes('semoga sukses')) {
+        reply = {
+          sender: 'lumi',
+          foreign: isIT ? 'In italiano si dice "In bocca al lupo!"' : 'In English you can say "Good luck!" or "Break a leg!"',
+          id: isIT ? 'Dalam bahasa Italia: "In bocca al lupo!"' : 'Dalam bahasa Inggris: "Good luck!" atau "Break a leg!"',
+          tip: 'Idiom ini dipakai penutur asli untuk menyemangati teman sebelum ujian atau tampil.'
+        };
+      } else if (lower.includes('pizza') || lower.includes('coffee') || lower.includes('caffè')) {
+        reply = {
+          sender: 'lumi',
+          foreign: isIT
+            ? 'Ottima scelta! Vorresti anche dell’acqua naturale?'
+            : 'Great choice! Would you also like a glass of water with that?',
+          id: 'Pilihan yang mantap! Apakah kamu juga mau segelas air mineral?',
+          tip: 'Struktur sopan untuk memesan sudah sangat tepat!'
+        };
+      }
+
+      chatMessages.push(reply);
+      appState.xp += 5;
+      saveAppState();
+      syncAllAvatarsAndHUD();
+      renderLumiChat();
+      speakPhrase(reply.foreign);
+    }
+
+    // -------------------------------------------------------------------------
+    // 12. TAB 5: TOKO SKIN AVATAR & ENERGI
+    // -------------------------------------------------------------------------
+    function renderTokoTab() {
+      syncAllAvatarsAndHUD();
+      const activeSkin = LUMI_SKINS.find(s => s.id === appState.equippedSkin) || LUMI_SKINS[0];
+      document.getElementById('activeSkinTitle').textContent = activeSkin.name;
+      document.getElementById('activeSkinDesc').textContent = activeSkin.desc;
+
+      document.getElementById('skinsShopGrid').innerHTML = LUMI_SKINS.map(skin => {
+        const owned = appState.unlockedSkins.includes(skin.id);
+        const equipped = appState.equippedSkin === skin.id;
+
+        let actionHTML = '';
+        if (equipped) {
+          actionHTML = `<button type="button" disabled class="w-full py-2.5 rounded-2xl bg-emerald-100 text-emerald-700 border-2 border-emerald-300 font-extrabold text-xs">✅ Sedang Dipakai</button>`;
+        } else if (owned) {
+          actionHTML = `<button type="button" onclick="handleSkinAction('${skin.id}')" class="w-full btn-tactile btn-blue py-2.5 rounded-2xl font-extrabold text-xs">Pakai Skin 👕</button>`;
+        } else {
+          actionHTML = `<button type="button" onclick="handleSkinAction('${skin.id}')" class="w-full btn-tactile btn-yellow py-2.5 rounded-2xl font-extrabold text-xs">Beli (${skin.price} 💎)</button>`;
+        }
+
+        return `
+          <div class="kawaii-card p-4 bg-white ${equipped ? 'border-purple-400 ring-2 ring-purple-200' : ''} flex flex-col items-center text-center justify-between gap-3">
+            <div class="w-20 h-20">${renderLumiSVG(skin.id)}</div>
+            <div>
+              <h4 class="font-display font-extrabold text-sm text-slate-800">${skin.badge} ${skin.name}</h4>
+              <p class="text-[11px] font-semibold text-slate-500 mt-0.5">${skin.desc}</p>
+            </div>
+            ${actionHTML}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleSkinAction(skinId) {
+      const skin = LUMI_SKINS.find(s => s.id === skinId);
+      if (!skin) return;
+
+      if (appState.unlockedSkins.includes(skinId)) {
+        appState.equippedSkin = skinId;
+        saveAppState();
+        renderTokoTab();
+        showToast(`✨ Kostum "${skin.name}" dipakai!`);
+        return;
+      }
+
+      if (appState.gems < skin.price) {
+        showToast(`💎 Permata belum cukup! Butuh ${skin.price} 💎 (kamu punya ${appState.gems} 💎).`);
+        return;
+      }
+
+      appState.gems -= skin.price;
+      appState.unlockedSkins.push(skinId);
+      appState.equippedSkin = skinId;
+      saveAppState();
+      renderTokoTab();
+      showToast(`🎉 Berhasil membuka "${skin.name}"!`);
+    }
+
+    function refillEnergy() {
+      if (appState.energy >= appState.maxEnergy) {
+        showToast('⚡ Energimu sudah penuh (10/10)!');
+        return;
+      }
+      if (appState.gems < 30) {
+        showToast('💎 Butuh 30 💎 untuk isi ulang energi penuh.');
+        return;
+      }
+      appState.gems -= 30;
+      appState.energy = appState.maxEnergy;
+      saveAppState();
+      syncAllAvatarsAndHUD();
+      showToast('⚡ Energi penuh kembali (10/10)!');
+    }
+
+    // -------------------------------------------------------------------------
+    // 13. NAVIGASI TAB & SWITCHER BAHASA
+    // -------------------------------------------------------------------------
+    function setLanguage(lang) {
+      if (appState.lang === lang) return;
+      appState.lang = lang;
+      storyQuizPicked = null;
+      saveAppState();
+
+      const btnEN = document.getElementById('btnLangEN');
+      const btnIT = document.getElementById('btnLangIT');
+      if (lang === 'en') {
+        btnEN.className = 'flex items-center gap-1 px-2.5 py-1 rounded-xl font-extrabold text-xs transition-all bg-white text-sky-600 shadow-xs';
+        btnIT.className = 'flex items-center gap-1 px-2.5 py-1 rounded-xl font-extrabold text-xs transition-all text-slate-500 hover:text-slate-700';
+        showToast('🇬🇧 Jalur Bahasa Inggris aktif!');
+      } else {
+        btnIT.className = 'flex items-center gap-1 px-2.5 py-1 rounded-xl font-extrabold text-xs transition-all bg-white text-emerald-600 shadow-xs';
+        btnEN.className = 'flex items-center gap-1 px-2.5 py-1 rounded-xl font-extrabold text-xs transition-all text-slate-500 hover:text-slate-700';
+        showToast('🇮🇹 Jalur Bahasa Italia aktif!');
+      }
+
+      renderWindingPath();
+      renderStoriesTab();
+      renderReadingTab();
+      resetLumiChat();
+    }
+
+    function switchTab(tabName) {
+      appState.activeTab = tabName;
+      const tabs = ['belajar', 'cerita', 'baca', 'lumi', 'toko'];
+      const activeDeskColors = {
+        belajar: 'btn-green',
+        cerita: 'btn-yellow',
+        baca: 'btn-blue',
+        lumi: 'btn-purple',
+        toko: 'btn-coral'
+      };
+
+      tabs.forEach(t => {
+        document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tabName);
+
+        const deskBtn = document.getElementById(`deskTab-${t}`);
+        if (deskBtn) {
+          deskBtn.className = `btn-tactile ${t === tabName ? activeDeskColors[t] : 'btn-card'} py-2 px-3 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-1.5`;
+        }
+
+        const mobBtn = document.getElementById(`mobTab-${t}`);
+        if (mobBtn) {
+          mobBtn.className = t === tabName
+            ? 'flex flex-col items-center justify-center py-1 rounded-xl bg-emerald-50 text-emerald-600 font-extrabold text-[10px]'
+            : 'flex flex-col items-center justify-center py-1 rounded-xl text-slate-500 font-extrabold text-[10px]';
+        }
+      });
+
+      if (tabName === 'cerita') renderStoriesTab();
+      if (tabName === 'baca') renderReadingTab();
+      if (tabName === 'lumi' && chatMessages.length === 0) resetLumiChat();
+      if (tabName === 'toko') renderTokoTab();
+    }
+
+    // Bootstrap saat halaman siap
+    window.addEventListener('DOMContentLoaded', () => {
+      syncAllAvatarsAndHUD();
+      if (appState.lang === 'it') {
+        document.getElementById('btnLangIT').className = 'flex items-center gap-1 px-2.5 py-1 rounded-xl font-extrabold text-xs transition-all bg-white text-emerald-600 shadow-xs';
+        document.getElementById('btnLangEN').className = 'flex items-center gap-1 px-2.5 py-1 rounded-xl font-extrabold text-xs transition-all text-slate-500 hover:text-slate-700';
+      }
+      renderWindingPath();
+      renderStoriesTab();
+      renderReadingTab();
+      resetLumiChat();
+      renderTokoTab();
+    });
+  </script>
+</body>
+</html>
